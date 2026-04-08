@@ -24,22 +24,23 @@ try {
 
   // Use local serviceAccountKey.json if exists
   const localPath = path.join(__dirname, "../serviceAccountKey.json");
-  if (fs.existsSync(localPath)) {
-    console.log("Using local serviceAccountKey.json file");
-    serviceAccount = require(localPath);
-  } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    // Production: use environment variable
     console.log("Using Firebase credentials from environment variable");
-    const serviceAccountJson = Buffer.from(
-      process.env.FIREBASE_SERVICE_ACCOUNT,
-      "base64",
-    ).toString("utf-8");
-    serviceAccount = JSON.parse(serviceAccountJson);
+    let raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+    try {
+      serviceAccount = JSON.parse(raw);
+    } catch (e) {
+      const decoded = Buffer.from(raw, "base64").toString("utf-8");
+      serviceAccount = JSON.parse(decoded);
+    }
+  } else if (fs.existsSync(path.join(__dirname, "../serviceAccountKey.json"))) {
+    // Local development: use local file
+    console.log("Using local serviceAccountKey.json file");
+    serviceAccount = require(path.join(__dirname, "../serviceAccountKey.json"));
   } else {
-    throw new Error(
-      "Firebase credentials not found. Provide serviceAccountKey.json or set FIREBASE_SERVICE_ACCOUNT env var.",
-    );
+    throw new Error("Firebase credentials not found.");
   }
-
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
