@@ -34,6 +34,12 @@ try {
       const decoded = Buffer.from(raw, "base64").toString("utf-8");
       serviceAccount = JSON.parse(decoded);
     }
+    if (serviceAccount.private_key) {
+      serviceAccount.private_key = serviceAccount.private_key.replace(
+        /\\n/g,
+        "\n",
+      );
+    }
   } else if (fs.existsSync(path.join(__dirname, "../serviceAccountKey.json"))) {
     // Local development: use local file
     console.log("Using local serviceAccountKey.json file");
