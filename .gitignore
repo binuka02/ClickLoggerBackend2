@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Firebase credentials
+firebase.json
+
+# Environment variables
+.env
+
+# Build outputs
+dist/
+build/
+
+.vercel
+.env*.local
+serviceAccountKey.json

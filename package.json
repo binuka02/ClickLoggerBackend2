@@ -1,0 +1,21 @@
+{
+  "name": "click-logger-backend",
+  "version": "1.0.0",
+  "description": "Node.js backend for tap logging system with Firebase Firestore",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["tap", "logging", "firebase", "firestore"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
