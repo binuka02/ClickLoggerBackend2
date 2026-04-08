@@ -74,6 +74,9 @@ app.get("/", (req, res) => {
 
 // Save taps
 app.post("/saveTaps", async (req, res) => {
+  if (!db) {
+    return res.status(500).json({ error: "Database not initialized" });
+  }
   try {
     const { id, var: deviceType, taps } = req.body;
 
@@ -144,6 +147,9 @@ app.post("/saveTaps", async (req, res) => {
 
 // Stats endpoint
 app.get("/stats/:sessionId", async (req, res) => {
+  if (!db) {
+    return res.status(500).json({ error: "Database not initialized" });
+  }
   try {
     const { sessionId } = req.params;
 
