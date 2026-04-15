@@ -239,13 +239,11 @@ app.get("/analytics", async (req, res) => {
 
     let completedBoth = 0;
     let droppedAfterFirst = 0;
-    let incomplete = 0;
 
     for (const userId in userMap) {
       const total = userMap[userId].totalTaps;
       if (total >= 100) completedBoth++;
-      else if (total >= 40) droppedAfterFirst++;
-      else incomplete++;
+      else if (total >= 50) droppedAfterFirst++;
     }
 
     // --- Response ---
@@ -296,7 +294,6 @@ app.get("/analytics", async (req, res) => {
         totalUsers: Object.keys(userMap).length,
         completedBoth,
         droppedAfterFirst,
-        incomplete,
       },
     });
   } catch (err) {
