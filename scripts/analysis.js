@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 const fs = require("fs");
 const path = require("path");
 
-// ---------------- Firebase Init ----------------
+//  Firebase Init
 try {
   let serviceAccount;
 
@@ -46,7 +46,7 @@ try {
 
 const db = admin.firestore();
 
-// ---------------- Helpers ----------------
+//  Helpers
 function calculateStdDev(values) {
   if (values.length === 0) return 0;
   const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
@@ -59,16 +59,9 @@ function mean(arr) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
 
-// ---------------- QUERY 1 ----------------
+//  QUERY 1
 async function compareDevicePerformance() {
   console.log("=== QUERY 1: Android vs PC Tap Duration Analysis ===\n");
-
-  const sessionsSnapshot = await db.collection("tap_sessions").get();
-  const deviceMap = {};
-  sessionsSnapshot.forEach((doc) => {
-    const data = doc.data();
-    deviceMap[data.sessionId] = data.deviceType;
-  });
 
   const tapsSnapshot = await db.collection("tap_logs").get();
   let androidDurations = [];
@@ -76,46 +69,41 @@ async function compareDevicePerformance() {
 
   tapsSnapshot.forEach((doc) => {
     const data = doc.data();
-    const deviceType = deviceMap[data.sessionId];
-    if (!deviceType || !data.duration || data.duration <= 0) return;
-
-    if (deviceType === "mobile") {
-      androidDurations.push(data.duration);
-    } else if (deviceType === "pc") {
-      pcDurations.push(data.duration);
-    }
+    if (!data.deviceType || !data.duration || data.duration <= 0) return;
+    if (data.deviceType === "mobile") androidDurations.push(data.duration);
+    else if (data.deviceType === "pc") pcDurations.push(data.duration);
   });
 
   console.log(` Android Users:`);
-  console.log(`   Total taps: ${androidDurations.length}`);
-  console.log(`   Mean duration: ${mean(androidDurations).toFixed(2)} ms`);
+  console.log(`   Total taps      : ${androidDurations.length}`);
+  console.log(`   Mean duration   : ${mean(androidDurations).toFixed(2)} ms`);
   console.log(
-    `   Std deviation: ${calculateStdDev(androidDurations).toFixed(2)} ms`,
+    `   Std deviation   : ${calculateStdDev(androidDurations).toFixed(2)} ms`,
   );
   console.log(
-    `   Min: ${androidDurations.length ? Math.min(...androidDurations) : 0} ms`,
+    `   Min             : ${androidDurations.length ? Math.min(...androidDurations) : 0} ms`,
   );
   console.log(
-    `   Max: ${androidDurations.length ? Math.max(...androidDurations) : 0} ms`,
+    `   Max             : ${androidDurations.length ? Math.max(...androidDurations) : 0} ms`,
   );
 
   console.log(`\n PC Users:`);
-  console.log(`   Total taps: ${pcDurations.length}`);
-  console.log(`   Mean duration: ${mean(pcDurations).toFixed(2)} ms`);
+  console.log(`   Total taps      : ${pcDurations.length}`);
+  console.log(`   Mean duration   : ${mean(pcDurations).toFixed(2)} ms`);
   console.log(
-    `   Std deviation: ${calculateStdDev(pcDurations).toFixed(2)} ms`,
+    `   Std deviation   : ${calculateStdDev(pcDurations).toFixed(2)} ms`,
   );
   console.log(
-    `   Min: ${pcDurations.length ? Math.min(...pcDurations) : 0} ms`,
+    `   Min             : ${pcDurations.length ? Math.min(...pcDurations) : 0} ms`,
   );
   console.log(
-    `   Max: ${pcDurations.length ? Math.max(...pcDurations) : 0} ms`,
+    `   Max             : ${pcDurations.length ? Math.max(...pcDurations) : 0} ms`,
   );
 
   console.log("\n" + "=".repeat(60) + "\n");
 }
 
-// ---------------- QUERY 2 ----------------
+//  QUERY 2
 async function compareInterfaceTypes() {
   console.log("=== QUERY 2: Feedback vs No-Feedback Interface Analysis ===\n");
 
@@ -143,35 +131,37 @@ async function compareInterfaceTypes() {
   });
 
   console.log(` Feedback Interface:`);
-  console.log(`   Total taps: ${feedbackDurations.length}`);
-  console.log(`   Mean duration: ${mean(feedbackDurations).toFixed(2)} ms`);
+  console.log(`   Total taps      : ${feedbackDurations.length}`);
+  console.log(`   Mean duration   : ${mean(feedbackDurations).toFixed(2)} ms`);
   console.log(
-    `   Std deviation: ${calculateStdDev(feedbackDurations).toFixed(2)} ms`,
+    `   Std deviation   : ${calculateStdDev(feedbackDurations).toFixed(2)} ms`,
   );
   console.log(
-    `   Min: ${feedbackDurations.length ? Math.min(...feedbackDurations) : 0} ms`,
+    `   Min             : ${feedbackDurations.length ? Math.min(...feedbackDurations) : 0} ms`,
   );
   console.log(
-    `   Max: ${feedbackDurations.length ? Math.max(...feedbackDurations) : 0} ms`,
+    `   Max             : ${feedbackDurations.length ? Math.max(...feedbackDurations) : 0} ms`,
   );
 
   console.log(`\n No Feedback Interface:`);
-  console.log(`   Total taps: ${noFeedbackDurations.length}`);
-  console.log(`   Mean duration: ${mean(noFeedbackDurations).toFixed(2)} ms`);
+  console.log(`   Total taps      : ${noFeedbackDurations.length}`);
   console.log(
-    `   Std deviation: ${calculateStdDev(noFeedbackDurations).toFixed(2)} ms`,
+    `   Mean duration   : ${mean(noFeedbackDurations).toFixed(2)} ms`,
   );
   console.log(
-    `   Min: ${noFeedbackDurations.length ? Math.min(...noFeedbackDurations) : 0} ms`,
+    `   Std deviation   : ${calculateStdDev(noFeedbackDurations).toFixed(2)} ms`,
   );
   console.log(
-    `   Max: ${noFeedbackDurations.length ? Math.max(...noFeedbackDurations) : 0} ms`,
+    `   Min             : ${noFeedbackDurations.length ? Math.min(...noFeedbackDurations) : 0} ms`,
+  );
+  console.log(
+    `   Max             : ${noFeedbackDurations.length ? Math.max(...noFeedbackDurations) : 0} ms`,
   );
 
   console.log("\n" + "=".repeat(60) + "\n");
 }
 
-// ---------------- QUERY 3 ----------------
+//  QUERY 3
 async function analyzeUserCompletion() {
   console.log("=== QUERY 3: User Completion Analysis ===\n");
 
@@ -197,26 +187,22 @@ async function analyzeUserCompletion() {
 
   for (const userId in userMap) {
     const total = userMap[userId].totalTaps;
-    if (total >= 100) {
-      completedBoth++;
-    } else if (total >= 40) {
-      droppedAfterFirst++;
-    } else {
-      incomplete++;
-    }
+    if (total >= 100) completedBoth++;
+    else if (total >= 40) droppedAfterFirst++;
+    else incomplete++;
   }
 
   const totalUsers = Object.keys(userMap).length;
 
-  console.log(` Total users: ${totalUsers}`);
-  console.log(` Completed both rounds (≥100 taps): ${completedBoth}`);
-  console.log(` Dropped after first round (40–99 taps): ${droppedAfterFirst}`);
-  console.log(` Incomplete (<40 taps): ${incomplete}`);
+  console.log(` Total users                        : ${totalUsers}`);
+  console.log(` Completed both rounds (≥100 taps)  : ${completedBoth}`);
+  console.log(` Dropped after first round (40–99)  : ${droppedAfterFirst}`);
+  console.log(` Incomplete (<40 taps)              : ${incomplete}`);
 
   console.log("\n" + "=".repeat(60) + "\n");
 }
 
-// ---------------- Run ----------------
+//  Run
 async function runAllAnalyses() {
   console.log("\n" + "=".repeat(60));
   console.log("   TAP LOGGER DATA ANALYSIS");

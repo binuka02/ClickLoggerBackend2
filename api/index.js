@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   express.json({ limit: "10mb" })(req, res, next);
 });
 
-// ---------------- Firebase Init ----------------
+//  Firebase Init
 let db;
 try {
   console.log("Initializing Firebase...");
@@ -56,7 +56,7 @@ try {
   console.error("Firebase initialization error:", err);
 }
 
-// ---------------- Helpers ----------------
+//  Helpers
 function calculateStdDev(values) {
   if (values.length === 0) return 0;
   const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
@@ -69,7 +69,7 @@ function mean(arr) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 }
 
-// ---------------- Routes ----------------
+//  Routes
 
 app.get("/", (req, res) => {
   res.json({
@@ -108,15 +108,16 @@ app.post("/saveTaps", async (req, res) => {
         .json({ error: "Invalid taps format", details: err.message });
     }
 
+    const interfaceValue =
+      tapArray.length > 0 ? tapArray[0].interface || "unknown" : "unknown";
+
     const sessionRef = db.collection("tap_sessions").doc(id);
     await sessionRef.set(
       {
         sessionId: id,
         deviceType,
         totalTaps: tapArray.length,
-        interfaceVariations: [
-          ...new Set(tapArray.map((t) => t.interface || "unknown")),
-        ],
+        interface: interfaceValue,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true },
@@ -127,6 +128,7 @@ app.post("/saveTaps", async (req, res) => {
       const tapRef = db.collection("tap_logs").doc();
       batch.set(tapRef, {
         sessionId: id,
+        deviceType,
         tapSequenceNumber: tap.tapSequenceNumber || index + 1,
         startTimestamp: tap.startTimestamp || null,
         endTimestamp: tap.endTimestamp || null,
@@ -180,29 +182,21 @@ app.get("/stats/:sessionId", async (req, res) => {
   }
 });
 
-// ---------------- Analytics Endpoint ----------------
+//  Analytics Endpoint
 app.get("/analytics", async (req, res) => {
   if (!db) return res.status(500).json({ error: "Database not initialized" });
 
   try {
     // --- Query 1: Device Performance ---
-    const sessionsSnapshot = await db.collection("tap_sessions").get();
-    const deviceMap = {};
-    sessionsSnapshot.forEach((doc) => {
-      const data = doc.data();
-      deviceMap[data.sessionId] = data.deviceType;
-    });
-
     const tapsSnapshot = await db.collection("tap_logs").get();
     let androidDurations = [];
     let pcDurations = [];
 
     tapsSnapshot.forEach((doc) => {
       const data = doc.data();
-      const deviceType = deviceMap[data.sessionId];
-      if (!deviceType || !data.duration || data.duration <= 0) return;
-      if (deviceType === "mobile") androidDurations.push(data.duration);
-      else if (deviceType === "pc") pcDurations.push(data.duration);
+      if (!data.deviceType || !data.duration || data.duration <= 0) return;
+      if (data.deviceType === "mobile") androidDurations.push(data.duration);
+      else if (data.deviceType === "pc") pcDurations.push(data.duration);
     });
 
     // --- Query 2: Interface Types ---
@@ -228,6 +222,7 @@ app.get("/analytics", async (req, res) => {
     });
 
     // --- Query 3: User Completion ---
+    const sessionsSnapshot = await db.collection("tap_sessions").get();
     const userMap = {};
     sessionsSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -304,7 +299,7 @@ app.get("/analytics", async (req, res) => {
   }
 });
 
-// ---------------- Vercel Serverless Handler ----------------
+//  Vercel Serverless Handler
 module.exports = (req, res) => {
   if (req.body && Buffer.isBuffer(req.body)) {
     try {
