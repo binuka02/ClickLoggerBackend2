@@ -78,9 +78,6 @@ async function compareDevicePerformance() {
   console.log(`   Total taps      : ${androidDurations.length}`);
   console.log(`   Mean duration   : ${mean(androidDurations).toFixed(2)} ms`);
   console.log(
-    `   Std deviation   : ${calculateStdDev(androidDurations).toFixed(2)} ms`,
-  );
-  console.log(
     `   Min             : ${androidDurations.length ? Math.min(...androidDurations) : 0} ms`,
   );
   console.log(
@@ -90,9 +87,6 @@ async function compareDevicePerformance() {
   console.log(`\n PC Users:`);
   console.log(`   Total taps      : ${pcDurations.length}`);
   console.log(`   Mean duration   : ${mean(pcDurations).toFixed(2)} ms`);
-  console.log(
-    `   Std deviation   : ${calculateStdDev(pcDurations).toFixed(2)} ms`,
-  );
   console.log(
     `   Min             : ${pcDurations.length ? Math.min(...pcDurations) : 0} ms`,
   );
@@ -134,9 +128,6 @@ async function compareInterfaceTypes() {
   console.log(`   Total taps      : ${feedbackDurations.length}`);
   console.log(`   Mean duration   : ${mean(feedbackDurations).toFixed(2)} ms`);
   console.log(
-    `   Std deviation   : ${calculateStdDev(feedbackDurations).toFixed(2)} ms`,
-  );
-  console.log(
     `   Min             : ${feedbackDurations.length ? Math.min(...feedbackDurations) : 0} ms`,
   );
   console.log(
@@ -147,9 +138,6 @@ async function compareInterfaceTypes() {
   console.log(`   Total taps      : ${noFeedbackDurations.length}`);
   console.log(
     `   Mean duration   : ${mean(noFeedbackDurations).toFixed(2)} ms`,
-  );
-  console.log(
-    `   Std deviation   : ${calculateStdDev(noFeedbackDurations).toFixed(2)} ms`,
   );
   console.log(
     `   Min             : ${noFeedbackDurations.length ? Math.min(...noFeedbackDurations) : 0} ms`,
